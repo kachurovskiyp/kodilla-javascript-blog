@@ -1,4 +1,5 @@
 const titleClickHandler = function(event){
+    const clickedElement = this;
 
     /* remove class 'active' from all article links  */
 
@@ -9,6 +10,8 @@ const titleClickHandler = function(event){
     }
 
     /* add class 'active' to the clicked link */
+
+    clickedElement.classList.add('active');
 
     /* remove class 'active' from all articles */
 
