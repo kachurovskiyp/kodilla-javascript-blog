@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 {
     const optActiveClass = 'active',
         optLinksClass = '.titles a',
@@ -26,16 +26,16 @@
             activeArticle.classList.remove(optActiveClass);
         }
 
-        document.getElementById(postID).classList.add(optActiveClass);;
+        document.getElementById(postID).classList.add(optActiveClass);
     };
 
     const titleClickHandler = function(event) {
         event.preventDefault();
         changeLink(this);
-        changePost(this.getAttribute("href").slice(1));
-    }
+        changePost(this.getAttribute('href').slice(1));
+    };
 
-    function generateTitleLinks(){
+    const generateTitleLinks = () => {
         const linksListElement = document.querySelector(optTitleListSelector);
         let linksList = '';
 
@@ -53,7 +53,7 @@
         }
 
         linksListElement.innerHTML = linksList;
-    }
+    };
 
     generateTitleLinks();
 
