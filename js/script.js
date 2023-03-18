@@ -9,6 +9,9 @@
     optTitleSelector = '.post-title',
     optTitleListSelector = '.titles';
 
+  const optPostTagsWrapper = '.post-tags .list',
+    optPostTagsSelector = 'data-tags';
+
   const changeLink = (clickedElement) => {
     const activeLinks = document.querySelectorAll(optActiveLinksClass);
 
@@ -41,19 +44,38 @@
 
     linksListElement.innerHTML = '';
 
-    const articles = document.querySelectorAll(optArticleSelector);
-    console.log(articles[1]);
-
     for (let article of articles) {
       linksList = linksList +
-        '<li><a href="#' +
-        article.getAttribute('id') + '"><span>' +
-        article.querySelector(optTitleSelector).innerHTML +
-        '</span></a></li>';
+        `<li>
+          <a href="#${article.getAttribute('id')}">
+            <span>${article.querySelector(optTitleSelector).innerHTML}</span>
+          </a>
+        </li>`;
     }
 
     linksListElement.innerHTML = linksList;
   };
+
+  const generateTags = () => {
+    for (let article of articles) {
+      const tagsWrapper = article.querySelector(optPostTagsWrapper);
+
+      let tagsList = '';
+      const tags = article.getAttribute(optPostTagsSelector).split(' ');
+
+      for (let tag of tags) {
+        tagsList = `${tagsList}
+          <li>
+            <a href="#tag-${tag}">${tag}</a>
+          </li>`
+      }
+
+      tagsWrapper.innerHTML = tagsList;
+    }
+  }
+  const articles = document.querySelectorAll(optArticleSelector);
+
+  generateTags();
 
   generateTitleLinks();
 
