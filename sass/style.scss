@@ -24,6 +24,15 @@ body {
   line-height: 1.7;
 }
 
+a {
+  text-decoration: none;
+  color: black;
+
+  &:visited {
+    color: black;
+  }
+}
+
 .container {
   max-width: 1140px;
   margin: 0 auto;
@@ -116,5 +125,38 @@ body {
   display: flex;
   p {
     margin: 0 10px 0 0;
+  }
+}
+
+
+/* Tags Cloud */
+
+.sidebar .tags {
+  & li {
+    display: inline;
+  }
+
+  & a.tag-size-1 {
+    font-size: 70%;
+  }
+
+  & a.tag-size-2 {
+    font-size: 90%;
+  }
+
+  & a.tag-size-3 {
+    font-size: 110%;
+  }
+
+  & a.tag-size-4 {
+    font-size: 120%;
+  }
+
+  & a.tag-size-5 {
+    font-size: 140%;
+  }
+
+  & a.tag-size-6 {
+    font-size: 160%;
   }
 }

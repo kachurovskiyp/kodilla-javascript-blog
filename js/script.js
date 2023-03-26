@@ -13,7 +13,12 @@
     optPostTagsSelector = 'data-tags';
 
   const optAuthorWrapper = '.post-author',
-    optAuthorSelector = 'data-author';
+    optAuthorSelector = 'data-author',
+    optAuthorsSidebarSelector = '.sidebar .authors';
+
+  const optCloudClassCount = 5,
+    optCloudClassPrefix = 'tag-size-',
+    optCloudElementSelector = '.sidebar .tags';
 
   const changeLink = (clickedElement) => {
     const activeLinks = document.querySelectorAll(optActiveLinksClass);
@@ -63,7 +68,28 @@
     changePost(localArticles[0].getAttribute('id'));
   };
 
+  const calculateTagsParams = (tags) => {
+    const counts = [];
+
+    for (let tag in tags) {
+      counts.push(tags[tag]);
+    }
+
+    return({
+      min: Math.min(...counts),
+      max: Math.max(...counts)
+    });
+  };
+
+  const calculateTagClass = (count, params) => {
+    const tagNum = Math.floor( ( (count - params.min) / (params.max - params.min) ) * optCloudClassCount + 1 );
+    return `${optCloudClassPrefix}${tagNum}`;
+  };
+
   const generateTags = () => {
+    const allTags = {};
+    let tagsCloudHtml = '';
+
     for (let article of articles) {
       const tagsWrapper = article.querySelector(optPostTagsWrapper);
 
@@ -71,25 +97,63 @@
       const tags = article.getAttribute(optPostTagsSelector).split(' ');
 
       for (let tag of tags) {
-        tagsList = `${tagsList}
-          <li>
+        if(!allTags[tag]) {
+          allTags[tag] = 1;
+        } else {
+          allTags[tag]++;
+        }
+
+        tagsList +=
+          `<li>
             <a href="#tag-${tag}">${tag}</a>
           </li>`;
       }
 
       tagsWrapper.innerHTML = tagsList;
     }
+
+    const tagParams = calculateTagsParams(allTags);
+
+    for (let tag in allTags) {
+      tagsCloudHtml +=
+        `<li>
+          <a class="${calculateTagClass(allTags[tag], tagParams)}" href="#tag-${tag}">${tag}</a>
+        </li>`;
+    }
+
+    document.querySelector(optCloudElementSelector).innerHTML = tagsCloudHtml;
+
   };
 
   const generateAuthors = () => {
+    const allAuthors = {};
+    let authorsLinksHtml = '';
+
     for (let article of articles) {
       let author = article.getAttribute(optAuthorSelector);
+
+      if(!allAuthors[author]) {
+        allAuthors[author] = 1;
+      } else {
+        allAuthors[author]++;
+      }
 
       article.querySelector(optAuthorWrapper).innerHTML =
         `<a href="#author-${author.replace(' ', '-')}">
           by ${author}
         </a>`;
     }
+
+    for (let author in allAuthors) {
+      authorsLinksHtml +=
+      `<li>
+        <a href="#author-${author.replace(' ', '-')}">
+          <span class="author-name">${author} (${allAuthors[author]})</span>
+        </a>
+      </li>`;
+    }
+
+    document.querySelector(optAuthorsSidebarSelector).innerHTML = authorsLinksHtml;
   };
 
   const unactiveTagLinks = () => {
@@ -135,14 +199,22 @@
     event.preventDefault();
     unactiveAuthorLinks();
 
-    const actualAuthorLinks = document.querySelectorAll(`a[href="${event.target.getAttribute('href')}"]`);
-    console.log(actualAuthorLinks);
+    let authorLink;
+
+    if(event.target.tagName == 'A') {
+      authorLink = event.target;
+    } else {
+      authorLink = event.target.parentNode;
+    }
+
+    const actualAuthorLinks = document.querySelectorAll(`a[href="${authorLink.getAttribute('href')}"]`);
+    let actualAuthor = '';
 
     for (let actualAuthorLink of actualAuthorLinks) {
       actualAuthorLink.classList.add('active');
     }
 
-    let actualAuthor = event.target.getAttribute('href').replace('#author-', '').replace('-', ' ');
+    actualAuthor = authorLink.getAttribute('href').replace('#author-', '').replace('-', ' ');
 
     generateTitleLinks(`[data-author="${actualAuthor}"]`);
   };
@@ -150,6 +222,7 @@
   const allPostsClickHandler = (event) => {
     event.preventDefault();
     unactiveTagLinks();
+    unactiveAuthorLinks();
     generateTitleLinks();
   };
 
@@ -171,7 +244,7 @@
     }
 
     allPostsLink.addEventListener('click', allPostsClickHandler);
-  }
+  };
 
   const addClickListenersToAuthors = () => {
     const authorLinks = document.querySelectorAll('a[href^="#author-"]');
