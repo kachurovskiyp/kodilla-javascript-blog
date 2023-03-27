@@ -20,6 +20,14 @@
     optCloudClassPrefix = 'tag-size-',
     optCloudElementSelector = '.sidebar .tags';
 
+  const templates = {
+    articleLink: Handlebars.compile(document.querySelector('#template-article-link').innerHTML),
+    tagLink: Handlebars.compile(document.querySelector('#template-tag-link').innerHTML),
+    authorLink: Handlebars.compile(document.querySelector('#template-author-link').innerHTML),
+    tagCloud: Handlebars.compile(document.querySelector('#template-tagCloud-link').innerHTML),
+    authorsList: Handlebars.compile(document.querySelector('#template-authorsList-link').innerHTML)
+  };
+
   const changeLink = (clickedElement) => {
     const activeLinks = document.querySelectorAll(optActiveLinksClass);
 
@@ -55,12 +63,13 @@
     linksListElement.innerHTML = '';
 
     for (let article of localArticles) {
-      linksList = linksList +
-        `<li>
-          <a href="#${article.getAttribute('id')}">
-            <span>${article.querySelector(optTitleSelector).innerHTML}</span>
-          </a>
-        </li>`;
+
+      const linkHTMLData = {
+        id: article.getAttribute('id'),
+        title: article.querySelector(optTitleSelector).innerHTML
+      };
+
+      linksList += templates.articleLink(linkHTMLData);
     }
 
     linksListElement.innerHTML = linksList;
@@ -88,7 +97,7 @@
 
   const generateTags = () => {
     const allTags = {};
-    let tagsCloudHtml = '';
+    let allTagsData = {tags: []};
 
     for (let article of articles) {
       const tagsWrapper = article.querySelector(optPostTagsWrapper);
@@ -103,10 +112,11 @@
           allTags[tag]++;
         }
 
-        tagsList +=
-          `<li>
-            <a href="#tag-${tag}">${tag}</a>
-          </li>`;
+        const linkHTMLData = {
+          tag: tag
+        };
+
+        tagsList += templates.tagLink(linkHTMLData);
       }
 
       tagsWrapper.innerHTML = tagsList;
@@ -115,19 +125,19 @@
     const tagParams = calculateTagsParams(allTags);
 
     for (let tag in allTags) {
-      tagsCloudHtml +=
-        `<li>
-          <a class="${calculateTagClass(allTags[tag], tagParams)}" href="#tag-${tag}">${tag}</a>
-        </li>`;
+      allTagsData.tags.push({
+        tag: tag,
+        className: calculateTagClass(allTags[tag], tagParams)
+      });
     }
 
-    document.querySelector(optCloudElementSelector).innerHTML = tagsCloudHtml;
+    document.querySelector(optCloudElementSelector).innerHTML = templates.tagCloud(allTagsData);
 
   };
 
   const generateAuthors = () => {
     const allAuthors = {};
-    let authorsLinksHtml = '';
+    let authorsLinksData = {authors: []};
 
     for (let article of articles) {
       let author = article.getAttribute(optAuthorSelector);
@@ -138,22 +148,24 @@
         allAuthors[author]++;
       }
 
-      article.querySelector(optAuthorWrapper).innerHTML =
-        `<a href="#author-${author.replace(' ', '-')}">
-          by ${author}
-        </a>`;
+      const linkHTMLData = {
+        authorHref: author.replace(' ', '-'),
+        author: author
+      };
+
+      article.querySelector(optAuthorWrapper).innerHTML = templates.authorLink(linkHTMLData);
     }
 
     for (let author in allAuthors) {
-      authorsLinksHtml +=
-      `<li>
-        <a href="#author-${author.replace(' ', '-')}">
-          <span class="author-name">${author} (${allAuthors[author]})</span>
-        </a>
-      </li>`;
+
+      authorsLinksData.authors.push({
+        authorHref: author.replace(' ', '-'),
+        author: author,
+        count: allAuthors[author]
+      });
     }
 
-    document.querySelector(optAuthorsSidebarSelector).innerHTML = authorsLinksHtml;
+    document.querySelector(optAuthorsSidebarSelector).innerHTML = templates.authorsList(authorsLinksData);
   };
 
   const unactiveTagLinks = () => {
